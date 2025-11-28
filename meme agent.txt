@@ -1,0 +1,251 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "jsCode": "return [\n  {\n    json: {\n      phone: $json.From || $json.from || $json.body?.from || '',\n      message: $json.Body || $json.body?.message || $json.body?.text || 'No message'\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2368,
+        368
+      ],
+      "id": "61fd36d3-8fd0-41aa-a7a3-81ba876bdfa7",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are a meme generator AI.\n\nGenerate a funny meme caption based on user input.\n\nUser input: {{ $json.message }}\n\nReturn only the final meme text. No explanation.",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "You are a professional meme generator AI. Create funny meme captions."
+            },
+            {
+              "type": "HumanMessagePromptTemplate",
+              "message": "=Generate a funny meme caption for: {{ $json.chatInput }}"
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        2592,
+        368
+      ],
+      "id": "ce45c74f-0d7e-4222-aca4-219cb050975b",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        2672,
+        592
+      ],
+      "id": "77059c79-7f73-478a-8386-fee2b4788636",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "uickCOPb1KbGCLI8",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "sendAndWait",
+        "phoneNumberId": "867744059758158",
+        "recipientPhoneNumber": "+91 6378504814",
+        "message": "={{ $('AI Agent').item.json.output }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        2944,
+        368
+      ],
+      "id": "e5540afd-005c-45bc-9ac2-1ec8c3526b3f",
+      "name": "Send message and wait for response",
+      "webhookId": "7448e476-3b0c-4006-871d-77246be0336b",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "j3VLvQkiXE46p4ww",
+          "name": "WhatsApp account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "updates": [
+          "messages"
+        ],
+        "options": {}
+      },
+      "type": "n8n-nodes-base.whatsAppTrigger",
+      "typeVersion": 1,
+      "position": [
+        1808,
+        368
+      ],
+      "id": "b79051cd-bb0d-40a5-8127-94f966eb74c2",
+      "name": "WhatsApp Trigger",
+      "webhookId": "ac6a4acf-6395-4a00-86e4-76ca0c7bdb39",
+      "credentials": {
+        "whatsAppTriggerApi": {
+          "id": "QLna99XWbopAsyXG",
+          "name": "WhatsApp OAuth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.messages[0].text.body }}",
+        "options": {
+          "systemMessage": "You are a Mood-Aware Chat Agent.  \nYour primary job is to detect the user’s mood, tone, and emotional state from their message and respond accordingly.  \nAll your replies must be in natural Hinglish (a mix of Hindi + English).\n\nFor every user message, you must:\n- Identify the user’s current mood (e.g., happy, sad, angry, confused, excited, tired, stressed, etc.)  \n- Sense the emotional intensity (light, moderate, strong)  \n- Understand the context of the conversation  \n\nThen respond with these rules:\n1. Validate the user’s feelings softly without explicitly labeling them (“You seem sad” is not allowed; instead be empathetic).  \n2. Maintain a human-like, natural Hinglish tone.  \n3. If the user is in a negative mood, use a calm, supportive, gentle style.  \n4. If the user is in a positive mood, use a warm, friendly, energetic tone.  \n5. Never sound judgmental, robotic, or dismissive.  \n6. Where appropriate, offer small suggestions, reassurance, or light humor.  \n7. Keep replies concise, clear, and emotionally aligned.  \n\nYour identity: You are a friendly, emotionally-aware companion who communicates only in Hinglish.\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        2016,
+        368
+      ],
+      "id": "443dd0d9-c9bb-487a-b359-39662af8af8b",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        1888,
+        592
+      ],
+      "id": "49ef73be-b924-49ea-8bdb-ea2f66fd775b",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "RncXtFX8PsdxBuqL",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.messages[0].text.body }}",
+        "contextWindowLength": 10
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        2032,
+        592
+      ],
+      "id": "cfc47098-c8ea-413a-a9cf-af23e2d38216",
+      "name": "Simple Memory"
+    }
+  ],
+  "connections": {
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Send message and wait for response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "WhatsApp Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "6e0cbb906358271b1b94d8dc12b4ecd7f9c14c5058305dde497572026525607a"
+  }
+}
